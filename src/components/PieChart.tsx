@@ -117,7 +117,7 @@ const PieChart: React.FC<Props> = ({ data, radius = 100 }) => {
             )}
 
             {/* Labels Below Chart */}
-            <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "12px" }}>
+            <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "12px", flexWrap: 'wrap' }}>
                 {data.map((slice, index) => (
                     <div
                         key={index}
@@ -125,16 +125,26 @@ const PieChart: React.FC<Props> = ({ data, radius = 100 }) => {
                         onMouseLeave={() => setHoveredIndex(null)}
                         style={{
                             cursor: "pointer",
-                            fontSize: "20px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            fontSize: "16px",
                             fontWeight: hoveredIndex === index ? "bold" : "normal",
-                            color: slice.color,
-                            margin: "5px 0",
+                            color: slice.color, // neutral text color
                         }}
                     >
+                        <div style={{
+                            width: "14px",
+                            height: "14px",
+                            backgroundColor: slice.color,
+                            borderRadius: "3px",
+                            boxShadow: hoveredIndex === index ? "0 0 3px rgba(0,0,0,0.5)" : "none"
+                        }} />
                         {slice.label}: {slice.value}%
                     </div>
                 ))}
             </div>
+
         </div>
     );
 };

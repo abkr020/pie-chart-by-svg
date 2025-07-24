@@ -20,7 +20,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div style={{ backgroundColor:'' }}>
+      <div style={{ backgroundColor:'gray' }}>
         {/* <h2>Pie Chart (React + TypeScript)</h2> */}
         <PieChart data={chartData} radius={100} />
       </div>
