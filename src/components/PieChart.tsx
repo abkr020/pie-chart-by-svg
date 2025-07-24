@@ -46,8 +46,8 @@ const getArcPath = (
 };
 
 const PieChart: React.FC<Props> = ({ data, radius = 100 }) => {
-    const cx = radius;
-    const cy = radius;
+    const cx = radius + 5;
+    const cy = radius + 5;
     let startAngle = 0;
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
     console.log("🔵 Rendering Pie Chart");
@@ -82,8 +82,8 @@ const PieChart: React.FC<Props> = ({ data, radius = 100 }) => {
         //         return pathElement;
         //     })}
         // </svg>
-         <div style={{ textAlign: "center", padding:'5px'}}>
-            <svg width={radius * 2} height={radius * 2}>
+        <div style={{ textAlign: "center", padding: '5px' }}>
+            <svg width={(radius * 2) + 10} height={(radius * 2) + 10}>
                 {data.map((slice, index) => {
                     const sliceAngle = (slice.value / 100) * 2 * Math.PI;
                     const endAngle = startAngle + sliceAngle;
@@ -91,7 +91,7 @@ const PieChart: React.FC<Props> = ({ data, radius = 100 }) => {
                     const path = getArcPath(cx, cy, radius, startAngle, endAngle);
 
                     const isHovered = index === hoveredIndex;
-console.log("aaaa",isHovered);
+                    console.log("aaaa", isHovered);
 
                     const pathElement = (
                         <path
@@ -112,7 +112,7 @@ console.log("aaaa",isHovered);
             </svg>
 
             {/* Labels Below Chart */}
-            <div style={{ marginTop: "20px", display:"flex", justifyContent:"center", gap:"12px"}}>
+            <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "12px" }}>
                 {data.map((slice, index) => (
                     <div
                         key={index}
