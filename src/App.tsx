@@ -9,7 +9,8 @@ const App: React.FC = () => {
     { label: "a", value: 25, color: "#36a2eb" },
     { label: "b", value: 35, color: "#cc65fe" },
     { label: "c", value: 40, color: "#ff6384" },
-    // { label: "D", value: 40, color: "#ffce56" },
+    // { label: "D", value: 10, color: "#ffce56" },
+    // { label: "e", value: 20, color: "#ffce56" },
   ];
   const MyCircle = () => (
     <svg width="100" height="100">
@@ -19,7 +20,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div style={{ backgroundColor:'gray' }}>
+      <div style={{ backgroundColor:'' }}>
         {/* <h2>Pie Chart (React + TypeScript)</h2> */}
         <PieChart data={chartData} radius={100} />
       </div>
