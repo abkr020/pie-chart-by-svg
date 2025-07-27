@@ -9,51 +9,44 @@ type PieData = {
 type Props = {
     data: PieData[];
     radius?: number;
+    innerRadius?: number; // <-- NEW
 };
 
 const getArcPath = (
     cx: number,
     cy: number,
-    radius: number,
+    outerR: number,
+    innerR: number,
     startAngle: number,
     endAngle: number
 ): string => {
-    const start = {
-        x: cx + radius * Math.cos(startAngle),
-        y: cy + radius * Math.sin(startAngle),
-    };
-
-    const end = {
-        x: cx + radius * Math.cos(endAngle),
-        y: cy + radius * Math.sin(endAngle),
-    };
+    const polarToCartesian = (r: number, angle: number) => ({
+        x: cx + r * Math.cos(angle),
+        y: cy + r * Math.sin(angle),
+    });
 
     const largeArcFlag = endAngle - startAngle > Math.PI ? 1 : 0;
 
-    // console.log("  ↪ Arc Start:", start);
-    // console.log("  ↪ Arc End:", end);
-    // console.log("  ↪ Large Arc Flag:", largeArcFlag);
+    const outerStart = polarToCartesian(outerR, startAngle);
+    const outerEnd = polarToCartesian(outerR, endAngle);
+    const innerEnd = polarToCartesian(innerR, endAngle);
+    const innerStart = polarToCartesian(innerR, startAngle);
 
-    const path = [
-        `M ${cx} ${cy}`,
-        `L ${start.x} ${start.y}`,
-        `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`,
-        "Z",
+    return [
+        `M ${outerStart.x} ${outerStart.y}`,
+        `A ${outerR} ${outerR} 0 ${largeArcFlag} 1 ${outerEnd.x} ${outerEnd.y}`,
+        `L ${innerEnd.x} ${innerEnd.y}`,
+        `A ${innerR} ${innerR} 0 ${largeArcFlag} 0 ${innerStart.x} ${innerStart.y}`,
+        `Z`,
     ].join(" ");
-
-    // console.log("  ↪ SVG Path:", path);
-    return path;
 };
 
-const PieChart: React.FC<Props> = ({ data, radius = 100 }) => {
+const PieChart: React.FC<Props> = ({ data, radius = 100, innerRadius = 0 }) => {
     const cx = radius + 5;
     const cy = radius + 5;
     let startAngle = 0;
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
     const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
-
-    // console.log("🔵 Rendering Pie Chart");
-    // console.log("👉 Center:", { cx, cy });
 
     return (
         <div style={{ textAlign: "center", padding: '5px' }}>
@@ -63,32 +56,51 @@ const PieChart: React.FC<Props> = ({ data, radius = 100 }) => {
                     const endAngle = startAngle + sliceAngle;
 
                     const isHovered = index === hoveredIndex;
-                    const updatedRadious = (isHovered ? radius + 3 : radius)
-                    const path = getArcPath(cx, cy, updatedRadious, startAngle, endAngle);
+                    const updatedRadious = (isHovered ? radius + 5 : radius)
+                    const updatedInnerRadious = (isHovered ? innerRadius - 5 : innerRadius)
+                    const path = getArcPath(cx, cy, updatedRadious, updatedInnerRadious, startAngle, endAngle);
+                    console.log('path====', path);
 
                     console.log("aaaa", isHovered);
 
+
                     const pathElement = (
-                        <path
-                            key={index}
-                            d={path}
-                            fill={slice.color}
-                            stroke="#fff"
-                            strokeWidth={isHovered ? 1 : 0.5}
-                            opacity={hoveredIndex === null || isHovered ? 1 : 0.5}
-                            onMouseEnter={(e) => {
-                                setTooltipPos({ x: e.clientX, y: e.clientY })
-                                setHoveredIndex(index)
-                            }}
-                            onMouseLeave={() => {
-                                setHoveredIndex(null)
-                                setTooltipPos(null);
-                            }}
-                        // onMouseMove={(e) => {
-                        //     setTooltipPos({ x: e.clientX, y: e.clientY });
-                        // }}
-                        />
+                        <>
+
+                            <path
+                                key={index}
+                                d={path}
+                                fill={slice.color}
+                                stroke={isHovered ? slice.color : '#fff'}
+                                strokeWidth={isHovered ? 2 : 1}
+                                opacity={hoveredIndex === null || isHovered ? 1 : 0.5}
+                                onMouseEnter={(e) => {
+                                    setTooltipPos({ x: e.clientX, y: e.clientY })
+                                    setHoveredIndex(index)
+                                }}
+                                onMouseLeave={() => {
+                                    setHoveredIndex(null)
+                                    setTooltipPos(null);
+                                }}
+                            />
+                            {
+                                hoveredIndex !== null && (
+                                    <text
+                                        x={cx}
+                                        y={cy}
+                                        textAnchor="middle"
+                                        dominantBaseline="middle"
+                                        fontSize="16"
+                                        fontWeight="bold"
+                                        fill={data[hoveredIndex].color}
+                                    >
+                                        {data[hoveredIndex].label}
+                                    </text>
+                                )
+                            }
+                        </>
                     );
+                    {/* Center label */ }
 
                     startAngle = endAngle;
                     return pathElement;

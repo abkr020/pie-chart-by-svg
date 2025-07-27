@@ -7,8 +7,8 @@ import PieChart from './components/PieChart';
 const App: React.FC = () => {
   const chartData = [
     { label: "a", value: 25, color: "#36a2eb" },
-    { label: "b", value: 35, color: "#cc65fe" },
-    { label: "c", value: 40, color: "#ff6384" },
+    { label: "b", value: 75, color: "#cc65fe" },
+    // { label: "c", value: 40, color: "#ff6384" },
     // { label: "D", value: 10, color: "#ffce56" },
     // { label: "e", value: 20, color: "#ffce56" },
   ];
