@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 type PieData = {
     label: string;
@@ -72,10 +72,11 @@ const PieChart: React.FC<Props> = ({ data, radius = 100, innerRadius = 0 }) => {
     let startAngle = 0;
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
     const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+    const svgRef = useRef<SVGSVGElement>(null);
 
     return (
-        <div style={{ textAlign: "center", padding: '5px' }}>
-            <svg width={(radius * 2) + 200} height={(radius * 2) + 100} style={{ backgroundColor: 'darkgray' }}>
+        <div style={{ position: 'relative', textAlign: "center", padding: '5px',backgroundColor:'gray' }}>
+            <svg ref={svgRef} width={(radius * 2) + 200} height={(radius * 2) + 100} style={{ backgroundColor: 'darkgray' }}>
                 {data.map((slice, index) => {
                     const sliceAngle = (slice.value / 100) * 2 * Math.PI;
                     const endAngle = startAngle + sliceAngle;
@@ -99,10 +100,22 @@ const PieChart: React.FC<Props> = ({ data, radius = 100, innerRadius = 0 }) => {
                                 stroke={isHovered ? slice.color : '#fff'}
                                 strokeWidth={1}
                                 opacity={hoveredIndex === null || isHovered ? 1 : 0.5}
+                                // onMouseEnter={(e) => {
+                                //     setTooltipPos({ x: e.clientX, y: e.clientY })
+                                //     setHoveredIndex(index)
+                                // }}
                                 onMouseEnter={(e) => {
-                                    setTooltipPos({ x: e.clientX, y: e.clientY })
-                                    setHoveredIndex(index)
+                                    const svgRect = svgRef.current?.getBoundingClientRect();
+                                    if (svgRect) {
+                                        // const x = e.clientX;
+                                        // const y = e.clientY;
+                                        const x = e.clientX - svgRect.left;
+                                        const y = e.clientY - svgRect.top;
+                                        setTooltipPos({ x, y });
+                                    }
+                                    setHoveredIndex(index);
                                 }}
+
                                 onMouseLeave={() => {
                                     setHoveredIndex(null)
                                     setTooltipPos(null);
@@ -205,7 +218,7 @@ const PieChart: React.FC<Props> = ({ data, radius = 100, innerRadius = 0 }) => {
             {hoveredIndex !== null && tooltipPos && (
                 <div
                     style={{
-                        position: "fixed",
+                        position: "absolute",
                         top: tooltipPos.y + 10,
                         left: tooltipPos.x + 10,
                         background: "#fff",
