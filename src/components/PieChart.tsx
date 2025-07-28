@@ -41,16 +41,41 @@ const getArcPath = (
     ].join(" ");
 };
 
+const getMidAngle = (start: number, end: number) => (start + end) / 2;
+
+const polarToCartesian = (cx: number, cy: number, r: number, angleRad: number) => ({
+    x: cx + r * Math.cos(angleRad),
+    y: cy + r * Math.sin(angleRad),
+});
+
+const getArcSegmentPath = (
+    cx: number,
+    cy: number,
+    radius: number,
+    angleStartRad: number,
+    angleEndRad: number
+): string => {
+    const start = polarToCartesian(cx, cy, radius, angleStartRad);
+    const end = polarToCartesian(cx, cy, radius, angleEndRad);
+    const largeArc = angleEndRad - angleStartRad > Math.PI ? 1 : 0;
+
+    return [
+        `M ${start.x} ${start.y}`,
+        `A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y}`,
+    ].join(' ');
+};
+
+
 const PieChart: React.FC<Props> = ({ data, radius = 100, innerRadius = 0 }) => {
-    const cx = radius + 5;
-    const cy = radius + 5;
+    const cx = radius + 100;
+    const cy = radius + 50;
     let startAngle = 0;
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
     const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
 
     return (
         <div style={{ textAlign: "center", padding: '5px' }}>
-            <svg width={(radius * 2) + 10} height={(radius * 2) + 10}>
+            <svg width={(radius * 2) + 200} height={(radius * 2) + 100} style={{ backgroundColor: 'darkgray' }}>
                 {data.map((slice, index) => {
                     const sliceAngle = (slice.value / 100) * 2 * Math.PI;
                     const endAngle = startAngle + sliceAngle;
@@ -72,7 +97,7 @@ const PieChart: React.FC<Props> = ({ data, radius = 100, innerRadius = 0 }) => {
                                 d={path}
                                 fill={slice.color}
                                 stroke={isHovered ? slice.color : '#fff'}
-                                strokeWidth={isHovered ? 2 : 1}
+                                strokeWidth={1}
                                 opacity={hoveredIndex === null || isHovered ? 1 : 0.5}
                                 onMouseEnter={(e) => {
                                     setTooltipPos({ x: e.clientX, y: e.clientY })
@@ -105,6 +130,77 @@ const PieChart: React.FC<Props> = ({ data, radius = 100, innerRadius = 0 }) => {
                     startAngle = endAngle;
                     return pathElement;
                 })}
+                {hoveredIndex !== null && (() => {
+                    const hovered = data[hoveredIndex];
+                    const sliceStartAngle = data
+                        .slice(0, hoveredIndex)
+                        .reduce((acc, cur) => acc + (cur.value / 100) * 2 * Math.PI, 0);
+                    const sliceAngle = (hovered.value / 100) * 2 * Math.PI;
+                    const sliceEndAngle = sliceStartAngle + sliceAngle;
+                    const midAngle = getMidAngle(sliceStartAngle, sliceEndAngle);
+
+                    const r1 = radius + 8; // arc ring
+                    const r2 = r1 + 20;    // line endpoint
+
+                    const arcPoint = polarToCartesian(cx, cy, r1, midAngle);
+                    const linePoint = polarToCartesian(cx, cy, r2, midAngle);
+
+                    const textOffsetX = midAngle > Math.PI / 2 && midAngle < (3 * Math.PI) / 2 ? -40 : 10;
+                    const labelAnchorPoint = {
+                        x: linePoint.x + (midAngle > Math.PI / 2 && midAngle < (3 * Math.PI) / 2 ? -20 : 20),
+                        y: linePoint.y,
+                    };
+
+
+                    return (
+                        <>
+                            {/* Outer highlight arc */}
+                            <path
+                                d={getArcSegmentPath(cx, cy, radius + 8, sliceStartAngle, sliceEndAngle)}
+                                fill="none"
+                                stroke={hovered.color}
+                                strokeWidth="2"
+                            />
+
+                            {/* Pointer line from arc edge to label line start */}
+                            <line
+                                x1={arcPoint.x}
+                                y1={arcPoint.y}
+                                x2={linePoint.x}
+                                y2={linePoint.y}
+                                stroke={hovered.color}
+                                strokeWidth="1.5"
+                            />
+
+                            {/* Horizontal label line */}
+                            <line
+                                x1={linePoint.x}
+                                y1={linePoint.y}
+                                x2={labelAnchorPoint.x}
+                                y2={labelAnchorPoint.y}
+                                stroke={hovered.color}
+                                strokeWidth="1.5"
+                            />
+
+                            {/* Circle at label end */}
+                            <circle cx={labelAnchorPoint.x} cy={labelAnchorPoint.y} r={2} fill={hovered.color} />
+
+                            {/* Value text */}
+                            <text
+                                x={labelAnchorPoint.x + (midAngle > Math.PI / 2 && midAngle < (3 * Math.PI) / 2 ? -10 : 10)}
+                                y={labelAnchorPoint.y + 5}
+                                fontSize="13"
+                                fontWeight="bold"
+                                fill={hovered.color}
+                                textAnchor={midAngle > Math.PI / 2 && midAngle < (3 * Math.PI) / 2 ? "end" : "start"}
+                            >
+                                {hovered.value}%
+                            </text>
+                        </>
+
+                    );
+                })()}
+
             </svg>
             {hoveredIndex !== null && tooltipPos && (
                 <div
