@@ -7,9 +7,10 @@ import PieChart from './components/PieChart';
 const App: React.FC = () => {
   const chartData = [
     { label: "a", value: 25, color: "#36a2eb" },
-    { label: "b", value: 35, color: "#cc65fe" },
-    { label: "c", value: 40, color: "#ff6384" },
-    // { label: "D", value: 40, color: "#ffce56" },
+    { label: "b", value: 75, color: "#cc65fe" },
+    // { label: "c", value: 40, color: "#ff6384" },
+    // { label: "D", value: 10, color: "#ffce56" },
+    // { label: "e", value: 20, color: "#ffce56" },
   ];
   const MyCircle = () => (
     <svg width="100" height="100">
@@ -21,7 +22,7 @@ const App: React.FC = () => {
     <>
       <div style={{ backgroundColor:'gray' }}>
         {/* <h2>Pie Chart (React + TypeScript)</h2> */}
-        <PieChart data={chartData} radius={100} />
+        <PieChart data={chartData} radius={100} innerRadius={60} />
       </div>
       <div>
         {/* {MyCircle()} */}
