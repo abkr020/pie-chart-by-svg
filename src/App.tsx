@@ -15,10 +15,12 @@ const App: React.FC = () => {
   ];
 
 const barChartData = [
-  { label: 'A', value: 40, color: '#4caf50' },
-  { label: 'Q2', value: 60, color: '#2196f3' },
-  { label: 'Q3', value: 45, color: '#f44336' },
-  { label: 'Q4', value: 75, color: '#ff9800' },
+ { label: 'Jan', value: 30, color: '#4caf50' },
+  { label: 'Feb', value: 60, color: '#2196f3' },
+  { label: 'Mar', value: 45, color: '#f44336' },
+  { label: 'Apr', value: 75, color: '#ff9800' },
+  { label: 'May', value: 90, color: '#9c27b0' },
+  { label: 'May', value: 90, color: '#9c27b0' },
 ];
 
   const MyCircle = () => (
